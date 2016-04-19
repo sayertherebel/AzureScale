@@ -90,11 +90,35 @@ if ($VMName -ne "" -and $ResourceGroupName -ne "") {
 	}
 		
 	# Connect to Azure and select the subscription to work against
-	$Cred = Get-AutomationPSCredential -Name 'AzureCredential'
-	$null = Add-AzureRmAccount -Credential $Cred -ErrorAction Stop
+	# $Cred = Get-AutomationPSCredential -Name 'AzureCredential'
+	# $null = Add-AzureRmAccount -Credential $Cred -ErrorAction Stop
 		
-	$SubId = Get-AutomationVariable -Name 'AzureSubscriptionId'
-	$null = Set-AzureRmContext -SubscriptionId $SubId -ErrorAction Stop
+	# $SubId = Get-AutomationVariable -Name 'AzureSubscriptionId'
+	# $null = Set-AzureRmContext -SubscriptionId $SubId -ErrorAction Stop
+
+	$connectionName = "AzureRunAsConnection"
+	try
+	{
+		# Get the connection "AzureRunAsConnection "
+		$servicePrincipalConnection=Get-AutomationConnection -Name $connectionName         
+
+		"Logging in to Azure..."
+		Add-AzureRmAccount `
+			-ServicePrincipal `
+			-TenantId $servicePrincipalConnection.TenantId `
+			-ApplicationId $servicePrincipalConnection.ApplicationId `
+			-CertificateThumbprint $servicePrincipalConnection.CertificateThumbprint 
+	}
+	catch {
+		if (!$servicePrincipalConnection)
+		{
+			$ErrorMessage = "Connection $connectionName not found."
+			throw $ErrorMessage
+		} else{
+			Write-Error -Message $_.Exception
+			throw $_.Exception
+		}
+	}
 		
 	try {
 		$vm = Get-AzureRmVm -ResourceGroupName $ResourceGroupName -VMName $VmName -ErrorAction Stop
