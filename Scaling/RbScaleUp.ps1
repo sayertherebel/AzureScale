@@ -1,4 +1,4 @@
- <#
+<#
 .SYNOPSIS
   Connects to Azure and vertically scales the VM
 
@@ -87,9 +87,7 @@ if ($VMName -ne "" -and $ResourceGroupName -ne "") {
 		
 		Write-Output "`nFound the specified Virtual Machine: $VmName"
 		Write-Output "Current size: $currentVMSize"
-		
-		$newVMSize = $PeakSize
-		
+			
 		if($newVMSize -eq $currentVMSize) {
 			Write-Output "The Virtual Machine is already correctly scaled. "
 		} 
