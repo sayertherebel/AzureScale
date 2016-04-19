@@ -131,7 +131,7 @@ if ($VMName -ne "" -and $ResourceGroupName -ne "") {
 
 	[string]$tag
 
-	$null = $vm.Tags.TryGetValue("SCALEUP", $tag)
+	$null = $vm.Tags.TryGetValue("SCALEUP", [ref] $tag)
 
 	# If the SCALEUP tag has value 'TRUE' proceed, otherwise exit
 
