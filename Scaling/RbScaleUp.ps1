@@ -3,7 +3,7 @@
   Connects to Azure and vertically scales the VM
 
 .DESCRIPTION
-  This runbook connects to Azure and scales up the VM 
+  This runbook connects to Azure and scales the passed VM either up or down based on the presence of a tag
 
   REQUIRED AUTOMATION ASSETS
   1. An Automation variable asset called "AzureSubscriptionId" that contains the GUID for this Azure subscription of the VM.  
@@ -87,9 +87,7 @@ if ($VMName -ne "" -and $ResourceGroupName -ne "") {
 		
 		Write-Output "`nFound the specified Virtual Machine: $VmName"
 		Write-Output "Current size: $currentVMSize"
-		
-		$newVMSize = $PeakSize
-		
+			
 		if($newVMSize -eq $currentVMSize) {
 			Write-Output "The Virtual Machine is already correctly scaled. "
 		} 
