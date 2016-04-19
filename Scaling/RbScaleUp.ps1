@@ -126,29 +126,51 @@ if ($VMName -ne "" -and $ResourceGroupName -ne "") {
 		Write-Error "Virtual Machine not found"
 		exit
 	}
-	$currentVMSize = $vm.HardwareProfile.vmSize
+
+	# Get SCALEUP tag
+
+	[string]$tag
+
+	$null = $vm.Tags.TryGetValue("SCALEUP", $tag)
+
+	# If the SCALEUP tag has value 'TRUE' proceed, otherwise exit
+
+	if ($tag -eq "TRUE")
+	{
+
+		$currentVMSize = $vm.HardwareProfile.vmSize
 		
-	Write-Output "`nFound the specified Virtual Machine: $VmName"
-	Write-Output "Current size: $currentVMSize"
+		Write-Output "`nFound the specified Virtual Machine: $VmName"
+		Write-Output "Current size: $currentVMSize"
 		
-	$newVMSize = ""
+		$newVMSize = ""
 		
-	$newVMSize = $scaleUp[$currentVMSize]
+		$newVMSize = $scaleUp[$currentVMSize]
 		
-	if($newVMSize -eq $noResize) {
-		Write-Output "Sorry the current Virtual Machine size $currentVMSize can't be scaled $scaleAction. You'll need to recreate the specified Virtual Machine with your requested size"
-	} else {
-		Write-Output "`nNew size will be: $newVMSize"
+		if($newVMSize -eq $noResize) {
+			Write-Output "Sorry the current Virtual Machine size $currentVMSize can't be scaled $scaleAction. You'll need to recreate the specified Virtual Machine with your requested size"
+		} 
+		else
+		{
+			Write-Output "`nNew size will be: $newVMSize"
 				
-		$vm.HardwareProfile.VmSize = $newVMSize
-		Update-AzureRmVm -VM $vm -ResourceGroupName $ResourceGroupName
+			$vm.HardwareProfile.VmSize = $newVMSize
+			Update-AzureRmVm -VM $vm -ResourceGroupName $ResourceGroupName
 			
-		$updatedVm = Get-AzureRmVm -ResourceGroupName $ResourceGroupName -VMName $VmName
-		$updatedVMSize = $updatedVm.HardwareProfile.vmSize
+			$updatedVm = Get-AzureRmVm -ResourceGroupName $ResourceGroupName -VMName $VmName
+			$updatedVMSize = $updatedVm.HardwareProfile.vmSize
 			
-		Write-Output "`nSize updated to: $updatedVMSize"	
+			Write-Output "`nSize updated to: $updatedVMSize"	
+		}
 	}
-} else {
+	else
+	{
+		Write-Output "SCALEUP tag not present."
+		exit
+	}
+
+}
+else {
 	Write-Output "Required parameter not supplied."
 	exit
 }
